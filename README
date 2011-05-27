@@ -1,0 +1,7 @@
+This is a port of http://pypi.python.org/pypi/webf/ -- the repo exists because
+
+A. There doesn't seem to be a good source listing anymore (original site is dead)
+B. I wanted to modify it to accept passed-in credentials instead of having one config file
+
+Original post: http://forum.webfaction.com/viewtopic.php?id=1513
+WebFaction API Docs: http://docs.webfaction.com/xmlrpc-api/
