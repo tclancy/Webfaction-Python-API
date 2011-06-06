@@ -14,6 +14,7 @@ import sys
 import xmlrpclib
 import logging
 import os.path
+import httplib
 
 from configobj import ConfigObj
 
@@ -59,10 +60,6 @@ class WebFactionXmlRpc(object):
 
     def create_app(self, app_name, app_type, autostart, extra_info):
         '''Create new application'''
-        if autostart.lower() == 'true':
-            autostart = True
-        else:
-            autostart = False
         if extra_info.lower() == 'none':
             extra_info = ''
         try:
@@ -74,9 +71,13 @@ class WebFactionXmlRpc(object):
                     extra_info 
                     )
             self.log.debug(result)
+            return True
         except xmlrpclib.Fault, errmsg:
             self.log.error(errmsg)
-            return 1
+            return False
+        except httplib.ResponseNotReady, errmsg:
+            self.log.error(errmsg)
+            return False
 
     def delete_app(self, app_name):
         '''Create new application'''
@@ -139,9 +140,13 @@ class WebFactionXmlRpc(object):
                     password
                     )
             self.log.debug(result)
+            return True
         except xmlrpclib.Fault, errmsg:
             self.log.error(errmsg)
-            return 1
+            return False
+        except httplib.ResponseNotReady, errmsg:
+            self.log.error(errmsg)
+            return False
 
     def create_cronjob(self, line):
         '''
