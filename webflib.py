@@ -412,3 +412,34 @@ class WebFactionXmlRpc(object):
             self.log.error(errmsg)
             return 1
 
+    def list_disk_usage(self):
+        '''
+        List disk space usage statistics about your account
+        http://docs.webfaction.com/xmlrpc-api/apiref.html#method-list_disk_usage
+        
+        @returns: Structure containing all disk usage members (see link for details)
+        @rtype: None on success or 1 on failure
+        '''
+        try:
+            result = self.server.list_disk_usage(self.session_id)
+            self.log.debug(result)
+            return result
+        except xmlrpclib.Fault, errmsg:
+            self.log.error(errmsg)
+            return 1
+
+    def list_bandwidth_usage(self):
+        '''
+        List bandwidth usage statistics for your websites
+        http://docs.webfaction.com/xmlrpc-api/apiref.html#method-list_bandwidth_usage
+        
+        @returns: Structure containing two members, daily and monthly
+        @rtype: None on success or 1 on failure
+        '''
+        try:
+            result = self.server.list_bandwidth_usage(self.session_id)
+            self.log.debug(result)
+            return result
+        except xmlrpclib.Fault, errmsg:
+            self.log.error(errmsg)
+            return 1
