@@ -19,29 +19,44 @@ import httplib
 from configobj import ConfigObj
 
 
+class WebFactionDBUser(object):
+    def __init__(self, username, password, db_type):
+        super(WebFactionDBUser, self).__init__()
+        self.username = username
+        self.password = password
+        self.db_type = db_type
+                
 API_URL = 'https://api.webfaction.com/'
 CONF = os.path.expanduser('~/.webfrc')
-
 class WebFactionXmlRpc(object):
 
     '''WebFaction XML-RPC server proxy class'''
 
-    def __init__(self, user, password):
-        self.log = logging.getLogger('webf')
+    def __init__(self, user=None, password=None):
+        self.log = logging.getLogger("webf")
         self.session_id = None
         self.server = None
+        if not user or password:
+            try:
+                user, password = WebFactionXmlRpc.get_config()
+            except NotImplementedError as e:
+                self.log.error(e)
+                raise ValueError("You must set a username and password. Either by passing them to __init__ or setting up your config file")
         self.username = user
         self.password = password
         self.login()
-
-    def get_config(self):
+        
+    @staticmethod
+    def get_config():
         '''Get configuration file from user's directory'''
         if not os.path.exists(CONF):
-            self.log.error("Set your username/password in %s" % CONF)
-            self.log.error("The format is:")
-            self.log.error("  username=<username>")
-            self.log.error("  password=<password>")
-            sys.exit(1)
+            err = u"\n".join([
+                u"  Set your username/password in %s" % CONF,
+                u"  The format is:",
+                u"      username=<username>",
+                u"      password=<password>",
+                ])
+            raise NotImplementedError(err)
         config = ConfigObj(CONF)
         username = config['username']
         password = config['password']
@@ -90,7 +105,17 @@ class WebFactionXmlRpc(object):
         except xmlrpclib.Fault, errmsg:
             self.log.error(errmsg)
             return 1
-
+    
+    def list_apps(self):
+        '''List all existing webfaction apps
+        https://docs.webfaction.com/xmlrpc-api/apiref.html#method-list_apps
+        Returns a list of dicts'''
+        try:
+            return self.server.list_apps(self.session_id)
+        except xmlrpclib.Fault, errmsg:
+            self.log.error(errmsg)
+            return []
+            
     def delete_db(self, name, db_type):
         '''
         Delete database
@@ -147,7 +172,59 @@ class WebFactionXmlRpc(object):
         except httplib.ResponseNotReady, errmsg:
             self.log.error(errmsg)
             return False
+            
+    def list_dbs(self):
+        try:
+            return self.server.list_dbs(self.session_id)
+        except xmlrpclib.Fault, errmsg:
+            self.log.error(errmsg)
+            return []
+    
+    def list_db_users(self):
+        try:
+            return self.server.list_db_users(self.session_id)
+        except xmlrpclib.Fault, errmsg:
+            self.log.error(errmsg)
+            return []
+    
+    def create_db_user(self, username, password, db_type):
+        try:
+            response = self.server.create_db_user(self.session_id, username, password, db_type)
+            self.log.debug(response)
+            return WebFactionDBUser(username, password, db_type)
+            
+        except xmlrpclib.Fault, errmsg:
+            self.log.error(errmsg)
+            return None
+    
+    def delete_db_user(self, db_user):
+        
+        try:
+            self.server.delete_db_user(
+                        self.session_id,
+                        db_user.username,
+                        db_user.db_type
+                        )
+            return True
+        except xmlrpclib.Fault, errmsg:
+            self.log.error(errmsg)
+            return False
+            
+    def grant_db_permissions(self, db_user, database):
 
+            
+        try:
+            self.server.grant_db_permissions(
+                                    self.session_id,
+                                    db_user.username,
+                                    database,
+                                    db_user.db_type
+                                    )
+            return True
+        except xmlrpclib.Fault, errmsg:
+            self.log.error(errmsg)
+            return False
+            
     def create_cronjob(self, line):
         '''
         Create a cronjob
