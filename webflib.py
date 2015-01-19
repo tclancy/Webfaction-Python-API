@@ -36,7 +36,7 @@ class WebFactionXmlRpc(object):
         self.log = logging.getLogger("webf")
         self.session_id = None
         self.server = None
-        if not user or password:
+        if not (user and password):
             try:
                 user, password = WebFactionXmlRpc.get_config()
             except NotImplementedError as e:
