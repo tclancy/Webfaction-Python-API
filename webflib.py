@@ -32,7 +32,7 @@ class WebFactionXmlRpc(object):
 
     '''WebFaction XML-RPC server proxy class'''
 
-    def __init__(self, user=None, password=None):
+    def __init__(self, user=None, password=None, machine=None):
         self.log = logging.getLogger("webf")
         self.session_id = None
         self.server = None
@@ -44,6 +44,7 @@ class WebFactionXmlRpc(object):
                 raise ValueError("You must set a username and password. Either by passing them to __init__ or setting up your config file")
         self.username = user
         self.password = password
+        self.machine = machine
         self.login()
         
     @staticmethod
@@ -69,7 +70,9 @@ class WebFactionXmlRpc(object):
         except KeyError:
             http_proxy = None
         self.server = xmlrpclib.Server(API_URL, transport=http_proxy)
-        self.session_id, account = self.server.login(self.username, self.password)
+        extra_args = [self.machine] if self.machine else []
+        self.session_id, account = self.server.login(self.username, self.password, *extra_args)
+
         self.log.debug("self.session_id %s account %s" % (self.session_id,
             account))
 
