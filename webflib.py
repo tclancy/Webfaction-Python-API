@@ -39,7 +39,7 @@ class WebFactionXmlRpc(object):
             try:
                 user, password = WebFactionXmlRpc.get_config()
             except NotImplementedError as e:
-                self.log.exception("You must set a username and password. Either by passing them to __init__ or setting up your config file")
+                self.log.error("You must set a username and password. Either by passing them to __init__ or setting up your config file")
                 raise e
 
         self.username = user
