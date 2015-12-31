@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # pylint: disable-msg=W0142
 '''
 
@@ -9,7 +9,7 @@ Command-line tool for WebFaction's XML-RPC API http://api.webfaction.com/
 
 Author: Rob Cakebread <rob@cakebread.info>
 
-License : BSD-2
+License : MIT
 
 '''
 
@@ -21,8 +21,8 @@ import sys
 import logging
 import optparse
 
-from webf.__init__ import __version__ as VERSION
-from webf import webflib
+from webfaction import __version__ as VERSION
+from webfaction import webflib
 
 
 class WebFaction(object):
